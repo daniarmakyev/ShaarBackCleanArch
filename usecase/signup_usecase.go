@@ -2,25 +2,35 @@ package usecase
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"fmt"
 	"shaar/domain"
+	"time"
 )
 
 type signupUsecase struct {
 	userRepository domain.UserRepository
+	contextTimeout time.Duration
 }
 
-func NewSignupUsecase(userRepository domain.UserRepository) domain.SignupUsecase {
-	return &signupUsecase{userRepository: userRepository}
+func NewSignupUsecase(userRepository domain.UserRepository, timeout time.Duration) domain.SignupUsecase {
+	return &signupUsecase{
+		userRepository: userRepository,
+		contextTimeout: timeout,
+	}
 }
 func (su *signupUsecase) Create(ctx context.Context, user *domain.User) error {
 	existingUser, err := su.userRepository.GetByEmail(ctx, user.Email)
-	if err != nil {
+
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return fmt.Errorf("error checking existing user: %v", err)
 	}
+
 	if existingUser != (domain.User{}) {
 		return fmt.Errorf("user with email %s already exists", user.Email)
 	}
+
 	return su.userRepository.Create(ctx, user)
 }
 

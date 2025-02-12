@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"path/filepath"
+	"shaar/bootstrap"
 	"shaar/domain"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,7 @@ import (
 
 type SignupController struct {
 	SignupUsecase domain.SignupUsecase
+	Env           *bootstrap.Env
 }
 
 func (sc *SignupController) Signup(c *gin.Context) {
@@ -40,9 +42,9 @@ func (sc *SignupController) Signup(c *gin.Context) {
 		return
 	}
 
-	file, err := c.FormFile("avatar")
+	file, err := c.FormFile("ava")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "Avatar file is required"})
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
 		return
 	}
 

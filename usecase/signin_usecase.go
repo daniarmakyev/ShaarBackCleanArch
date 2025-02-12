@@ -5,14 +5,19 @@ import (
 	"fmt"
 	"shaar/domain"
 	"shaar/internal/tokenutil"
+	"time"
 )
 
 type signinUsecase struct {
 	userRepository domain.UserRepository
+	contextTimeout time.Duration
 }
 
-func NewSigninUsecase(userRepository domain.UserRepository) domain.SigninUsecase {
-	return &signinUsecase{userRepository: userRepository}
+func NewSigninUsecase(userRepository domain.UserRepository, timeout time.Duration) domain.SigninUsecase {
+	return &signinUsecase{
+		userRepository: userRepository,
+		contextTimeout: timeout,
+	}
 }
 
 func (su *signinUsecase) GetUserByEmail(ctx context.Context, email string) (domain.User, error) {

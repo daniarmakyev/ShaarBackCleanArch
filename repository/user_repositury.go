@@ -25,11 +25,11 @@ func (ur *userRepository) Create(ctx context.Context, user *domain.User) error {
 func (ur *userRepository) getUser(ctx context.Context, condition string, arg interface{}) (*domain.User, error) {
 	query := fmt.Sprintf("SELECT id, username, email, password, avatar FROM users WHERE %s", condition)
 	row := ur.db.QueryRowContext(ctx, query, arg)
-	var ErrUserNotFound = errors.New("user not found")
+
 	var user domain.User
 	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Avatar)
 	if err == sql.ErrNoRows {
-		return nil, ErrUserNotFound
+		return nil, sql.ErrNoRows
 	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to scan user: %w", err)

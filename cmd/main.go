@@ -5,6 +5,7 @@ import (
 	"shaar/api/route"
 	"shaar/bootstrap"
 	"shaar/postgres"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -19,9 +20,11 @@ func main() {
 	}
 	defer postgres.CloseDB(db)
 
-	router := gin.Default()
-
 	env := bootstrap.NewEnv()
+
+	timeout := time.Duration(env.ContextTimeout) * time.Second
+
+	router := gin.Default()
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3000"},
@@ -29,7 +32,7 @@ func main() {
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		AllowCredentials: true,
 	}))
-	route.Setup(env, db, router)
+	route.Setup(env, timeout, db, router)
 
 	err := router.Run(":8080")
 
