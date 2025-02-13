@@ -3,14 +3,14 @@ package domain
 import "context"
 
 type Place struct {
-	ID        int
-	Name      string
-	Category  string
-	Latitude  float64
-	Longitude float64
-	Rating    float64
-	Price     int
-	ImageURL  string
+	ID        int     `json:"id"`
+	Name      string  `json:"name"`
+	Category  string  `json:"category"`
+	Latitude  float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
+	Rating    float64 `json:"rating"`
+	Price     int     `json:"price"`
+	ImageURL  string  `json:"imageUrl"`
 }
 
 type PlacesRepository interface {
