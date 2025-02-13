@@ -2,6 +2,8 @@ package usecase
 
 import (
 	"context"
+	"fmt"
+	"os"
 	"shaar/domain"
 	"shaar/internal/tokenutil"
 	"strconv"
@@ -20,8 +22,8 @@ func NewRefreshTokenUsecase(userRepository domain.UserRepository, timeout time.D
 	}
 }
 
-func (rtu *refreshTokenUsecase) GetUserByID(c context.Context, id string) (domain.User, error) {
-	ctx, cancel := context.WithTimeout(c, rtu.contextTimeout)
+func (rtu *refreshTokenUsecase) GetUserByID(ctx context.Context, id string) (domain.User, error) {
+	ctx, cancel := context.WithTimeout(ctx, rtu.contextTimeout)
 	defer cancel()
 	userID, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
@@ -29,6 +31,9 @@ func (rtu *refreshTokenUsecase) GetUserByID(c context.Context, id string) (domai
 	}
 	user, err := rtu.userRepository.GetByID(ctx, userID)
 	if err != nil {
+		if os.IsTimeout(err) {
+			return domain.User{}, fmt.Errorf("request timed out")
+		}
 		return domain.User{}, err
 	}
 	return *user, nil

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"os"
 	"shaar/domain"
 	"time"
 )
@@ -20,11 +21,19 @@ func NewSignupUsecase(userRepository domain.UserRepository, timeout time.Duratio
 		contextTimeout: timeout,
 	}
 }
+
 func (su *signupUsecase) Create(ctx context.Context, user *domain.User) error {
+	ctx, cancel := context.WithTimeout(ctx, su.contextTimeout)
+	defer cancel()
 	existingUser, err := su.userRepository.GetByEmail(ctx, user.Email)
 
-	if err != nil && !errors.Is(err, sql.ErrNoRows) {
-		return fmt.Errorf("error checking existing user: %v", err)
+	if err != nil {
+		if os.IsTimeout(err) {
+			return fmt.Errorf("request timed out")
+		}
+		if !errors.Is(err, sql.ErrNoRows) {
+			return fmt.Errorf("error checking existing user: %v", err)
+		}
 	}
 
 	if existingUser != (domain.User{}) {
@@ -35,8 +44,13 @@ func (su *signupUsecase) Create(ctx context.Context, user *domain.User) error {
 }
 
 func (su *signupUsecase) GetUserByEmail(ctx context.Context, email string) (bool, error) {
+	ctx, cancel := context.WithTimeout(ctx, su.contextTimeout)
+	defer cancel()
 	existingUser, err := su.userRepository.GetByEmail(ctx, email)
 	if err != nil {
+		if os.IsTimeout(err) {
+			return false, fmt.Errorf("request timed out")
+		}
 		return false, fmt.Errorf("error checking existing user: %v", err)
 	}
 	return existingUser != (domain.User{}), nil

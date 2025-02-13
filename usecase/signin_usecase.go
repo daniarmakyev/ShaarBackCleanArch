@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"fmt"
+	"os"
 	"shaar/domain"
 	"shaar/internal/tokenutil"
 	"time"
@@ -21,8 +22,13 @@ func NewSigninUsecase(userRepository domain.UserRepository, timeout time.Duratio
 }
 
 func (su *signinUsecase) GetUserByEmail(ctx context.Context, email string) (domain.User, error) {
+	ctx, cancel := context.WithTimeout(ctx, su.contextTimeout)
+	defer cancel()
 	existingUser, err := su.userRepository.GetByEmail(ctx, email)
 	if err != nil {
+		if os.IsTimeout(err) {
+			return domain.User{}, fmt.Errorf("request timed out")
+		}
 		return domain.User{}, fmt.Errorf("error checking existing user: %v", err)
 	}
 	return existingUser, nil

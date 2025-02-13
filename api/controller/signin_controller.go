@@ -25,12 +25,12 @@ func (lc *SigninController) Signin(c *gin.Context) {
 
 	user, err := lc.SigninUsecase.GetUserByEmail(c, request.Email)
 	if err != nil {
-		c.JSON(http.StatusNotFound, domain.ErrorResponse{Message: "User not found with the given email"})
+		c.JSON(http.StatusNotFound, domain.ErrorResponse{Message: "User not found: " + err.Error()})
 		return
 	}
 
 	if user == (domain.User{}) {
-		c.JSON(http.StatusNotFound, domain.ErrorResponse{Message: "User not found with the given email"})
+		c.JSON(http.StatusNotFound, domain.ErrorResponse{Message: "User not found: " + err.Error()})
 		return
 	}
 
