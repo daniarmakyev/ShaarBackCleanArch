@@ -53,8 +53,8 @@ func (wu *weatherUsecase) GetWeather(ctx context.Context) (error, *domain.Simple
 	}
 
 	simpleWeather := domain.SimpleWeather{
-		Region: weatherResponse.Location.Region,
-		TempC:  weatherResponse.Current.TempC,
+		Icon:  weatherResponse.Current.Condition.Icon,
+		TempC: weatherResponse.Current.TempC,
 	}
 	return nil, &simpleWeather
 }

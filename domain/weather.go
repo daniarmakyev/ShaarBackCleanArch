@@ -58,8 +58,8 @@ type WeatherResponse struct {
 	Current  CurrentWeather  `json:"current"`
 }
 type SimpleWeather struct {
-	Region string  `json:"region"`
-	TempC  float64 `json:"temp_c"`
+	Icon  string  `json:"icon"`
+	TempC float64 `json:"temp_c"`
 }
 
 type WeatherUsecase interface {

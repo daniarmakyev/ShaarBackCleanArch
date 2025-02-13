@@ -18,4 +18,5 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db *sql.DB, router *gin.En
 	protectedRouter.Use(middleware.JwtAuthMiddleware(env.AccessTokenSecret))
 	NewWeatherRouter(env, protectedRouter, timeout)
 	NewAirRouter(env, protectedRouter, timeout)
+	NewPlacesRouter(env, protectedRouter, timeout, db)
 }
