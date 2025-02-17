@@ -8,26 +8,26 @@ import (
 	"shaar/domain"
 )
 
-type userRepository struct {
+type UserRepository struct {
 	db *sql.DB
 }
 
 func NewUserRepository(db *sql.DB) domain.UserRepository {
-	return &userRepository{db: db}
+	return &UserRepository{db: db}
 }
 
-func (ur *userRepository) Create(ctx context.Context, user *domain.User) error {
-	query := "INSERT INTO users (username, email, password, avatar) VALUES ($1, $2, $3, $4)"
-	_, err := ur.db.ExecContext(ctx, query, user.Username, user.Email, user.Password, user.Avatar)
+func (ur *UserRepository) Create(ctx context.Context, user *domain.User) error {
+	query := "INSERT INTO users (username, email, password, phone, payment, name, surname) VALUES ($1, $2, $3, $4, $5, $6, $7)"
+	_, err := ur.db.ExecContext(ctx, query, user.Username, user.Email, user.Password, user.Phone, user.Payment, user.Name, user.Surname)
 	return err
 }
 
-func (ur *userRepository) getUser(ctx context.Context, condition string, arg interface{}) (*domain.User, error) {
-	query := fmt.Sprintf("SELECT id, username, email, password, avatar FROM users WHERE %s", condition)
+func (ur *UserRepository) getUser(ctx context.Context, condition string, arg interface{}) (*domain.User, error) {
+	query := fmt.Sprintf("SELECT id, username, email, password, phone, payment, name, surname FROM users WHERE %s", condition)
 	row := ur.db.QueryRowContext(ctx, query, arg)
 
 	var user domain.User
-	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Avatar)
+	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.Password, &user.Phone, &user.Payment, &user.Name, &user.Surname)
 	if err == sql.ErrNoRows {
 		return nil, sql.ErrNoRows
 	}
@@ -38,7 +38,7 @@ func (ur *userRepository) getUser(ctx context.Context, condition string, arg int
 	return &user, nil
 }
 
-func (ur *userRepository) GetByEmail(ctx context.Context, email string) (domain.User, error) {
+func (ur *UserRepository) GetByEmail(ctx context.Context, email string) (domain.User, error) {
 	user, err := ur.getUser(ctx, "email = $1", email)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -49,6 +49,17 @@ func (ur *userRepository) GetByEmail(ctx context.Context, email string) (domain.
 	return *user, nil
 }
 
-func (ur *userRepository) GetByID(ctx context.Context, id int64) (*domain.User, error) {
+func (ur *UserRepository) GetByID(ctx context.Context, id int64) (*domain.User, error) {
 	return ur.getUser(ctx, "id = $1", id)
+}
+
+func (ur *UserRepository) Update(ctx context.Context, user *domain.User) error {
+	query := `UPDATE users 
+	          SET username = $1, email = $2, phone = $3, payment = $4, name = $5, surname = $6 
+	          WHERE id = $7`
+	_, err := ur.db.ExecContext(ctx, query, user.Username, user.Email, user.Phone, user.Payment, user.Name, user.Surname, user.ID)
+	if err != nil {
+		return fmt.Errorf("userRepository.Update: %w", err)
+	}
+	return nil
 }

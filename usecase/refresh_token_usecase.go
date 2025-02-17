@@ -6,7 +6,6 @@ import (
 	"os"
 	"shaar/domain"
 	"shaar/internal/tokenutil"
-	"strconv"
 	"time"
 )
 
@@ -22,14 +21,10 @@ func NewRefreshTokenUsecase(userRepository domain.UserRepository, timeout time.D
 	}
 }
 
-func (rtu *refreshTokenUsecase) GetUserByID(ctx context.Context, id string) (domain.User, error) {
+func (rtu *refreshTokenUsecase) GetUserByID(ctx context.Context, id int64) (domain.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, rtu.contextTimeout)
 	defer cancel()
-	userID, err := strconv.ParseInt(id, 10, 64)
-	if err != nil {
-		return domain.User{}, err
-	}
-	user, err := rtu.userRepository.GetByID(ctx, userID)
+	user, err := rtu.userRepository.GetByID(ctx, id)
 	if err != nil {
 		if os.IsTimeout(err) {
 			return domain.User{}, fmt.Errorf("request timed out")
@@ -47,6 +42,6 @@ func (rtu *refreshTokenUsecase) CreateRefreshToken(user *domain.User, secret str
 	return tokenutil.CreateRefreshToken(user, secret, expiry)
 }
 
-func (rtu *refreshTokenUsecase) ExtractIDFromToken(requestToken string, secret string) (string, error) {
+func (rtu *refreshTokenUsecase) ExtractIDFromToken(requestToken string, secret string) (int64, error) {
 	return tokenutil.ExtractIDFromToken(requestToken, secret)
 }

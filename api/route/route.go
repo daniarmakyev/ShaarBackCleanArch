@@ -19,4 +19,5 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db *sql.DB, router *gin.En
 	NewWeatherRouter(env, protectedRouter, timeout)
 	NewAirRouter(env, protectedRouter, timeout)
 	NewPlacesRouter(env, protectedRouter, timeout, db)
+	NewUserRouter(env, protectedRouter, timeout, db)
 }

@@ -3,7 +3,6 @@ package controller
 import (
 	"log"
 	"net/http"
-	"path/filepath"
 	"shaar/bootstrap"
 	"shaar/domain"
 
@@ -19,8 +18,7 @@ type SignupController struct {
 func (sc *SignupController) Signup(c *gin.Context) {
 	var request domain.SignupRequest
 
-	err := c.ShouldBind(&request)
-	if err != nil {
+	if err := c.ShouldBind(&request); err != nil {
 		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: "Invalid input data"})
 		log.Printf("Error binding input data: %v", err)
 		return
@@ -38,39 +36,7 @@ func (sc *SignupController) Signup(c *gin.Context) {
 
 	encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
-		return
-	}
-
-	file, err := c.FormFile("ava")
-	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: err.Error()})
-		return
-	}
-
-	f, err := file.Open()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: err.Error()})
-		return
-	}
-	defer f.Close()
-
-	buffer := make([]byte, 512)
-	_, err = f.Read(buffer)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "Failed to read file"})
-		return
-	}
-
-	contentType := http.DetectContentType(buffer)
-	if contentType != "image/png" && contentType != "image/jpeg" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type, only .jpg and .png are allowed"})
-		return
-	}
-
-	savePath := filepath.Join("uploads", file.Filename)
-	if err := c.SaveUploadedFile(file, savePath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
+		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "Failed to encrypt password"})
 		return
 	}
 
@@ -78,7 +44,10 @@ func (sc *SignupController) Signup(c *gin.Context) {
 		Username: request.Username,
 		Email:    request.Email,
 		Password: string(encryptedPassword),
-		Avatar:   file.Filename,
+		Phone:    request.Phone,
+		Payment:  request.Payment,
+		Name:     request.Name,
+		Surname:  request.Surname,
 	}
 
 	err = sc.SignupUsecase.Create(c, &user)
