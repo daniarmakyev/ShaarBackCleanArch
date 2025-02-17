@@ -1,4 +1,3 @@
-// route/user_router.go
 package route
 
 import (
@@ -17,9 +16,8 @@ func NewUserRouter(env *bootstrap.Env, group *gin.RouterGroup, timeout time.Dura
 	ur := repository.NewUserRepository(db)
 
 	uc := &controller.UserController{
-		RefreshTokenUsecase: usecase.NewRefreshTokenUsecase(ur, timeout),
-		UserUsecase:         usecase.NewUserUsecase(ur),
-		Env:                 env,
+		UserUsecase: usecase.NewUserUsecase(ur, timeout),
+		Env:         env,
 	}
 
 	group.GET("/user", uc.GetUser)

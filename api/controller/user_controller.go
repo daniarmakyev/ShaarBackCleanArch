@@ -12,9 +12,8 @@ import (
 )
 
 type UserController struct {
-	RefreshTokenUsecase domain.RefreshTokenUsecase
-	UserUsecase         domain.UserUseCase
-	Env                 *bootstrap.Env
+	UserUsecase domain.UserUseCase
+	Env         *bootstrap.Env
 }
 
 func extractToken(r *gin.Context) (string, error) {
@@ -43,12 +42,14 @@ func (uc *UserController) GetUser(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, domain.ErrorResponse{Message: "Authorization token missing or malformed"})
 		return
 	}
-	id, err := uc.RefreshTokenUsecase.ExtractIDFromToken(token, uc.Env.AccessTokenSecret)
+
+	id, err := uc.UserUsecase.ExtractIDFromToken(token, uc.Env.AccessTokenSecret)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, domain.ErrorResponse{Message: "Invalid token"})
 		return
 	}
-	user, err := uc.RefreshTokenUsecase.GetUserByID(c, id)
+
+	user, err := uc.UserUsecase.GetUserByID(c, id)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, domain.ErrorResponse{Message: "User not found: " + err.Error()})
 		return
@@ -69,13 +70,13 @@ func (uc *UserController) GetUser(c *gin.Context) {
 
 func (uc *UserController) UpdateUser(c *gin.Context) {
 	var request domain.UserUpdateRequest
-	log.Printf("Request data: %+v", request)
 
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Message: fmt.Sprintf("Invalid request data: %v", err)})
 		log.Print("Binding error:", err)
 		return
 	}
+	log.Printf("Request data: %+v", request)
 
 	token, err := extractToken(c)
 	if err != nil {
@@ -83,13 +84,13 @@ func (uc *UserController) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	id, err := uc.RefreshTokenUsecase.ExtractIDFromToken(token, uc.Env.AccessTokenSecret)
+	id, err := uc.UserUsecase.ExtractIDFromToken(token, uc.Env.AccessTokenSecret)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, domain.ErrorResponse{Message: "Invalid token"})
 		return
 	}
 
-	_, err = uc.RefreshTokenUsecase.GetUserByID(c, id)
+	_, err = uc.UserUsecase.GetUserByID(c, id)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, domain.ErrorResponse{Message: "User not found"})
 		return

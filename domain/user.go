@@ -33,4 +33,6 @@ type UserRepository interface {
 
 type UserUseCase interface {
 	UpdateUser(ctx context.Context, id int64, updates UserUpdateRequest) (*User, error)
+	GetUserByID(ctx context.Context, id int64) (*User, error)
+	ExtractIDFromToken(requestToken string, secret string) (int64, error)
 }
