@@ -23,7 +23,7 @@ func NewPlacesUsecase(pr domain.PlacesRepository, timeout time.Duration) domain.
 func (pu *placesUsecase) GetAllPlaces(ctx context.Context) ([]domain.Place, error) {
 	ctx, cancel := context.WithTimeout(ctx, pu.contextTimeout)
 	defer cancel()
-	places, err := pu.placesRepository.GetAllPlaces()
+	places, err := pu.placesRepository.GetAllPlaces(ctx)
 	if err != nil {
 		if os.IsTimeout(err) {
 			return nil, fmt.Errorf("request timed out")
@@ -36,7 +36,7 @@ func (pu *placesUsecase) GetAllPlaces(ctx context.Context) ([]domain.Place, erro
 func (pu *placesUsecase) GetPlacesByCategory(ctx context.Context, category string) ([]domain.Place, error) {
 	ctx, cancel := context.WithTimeout(ctx, pu.contextTimeout)
 	defer cancel()
-	places, err := pu.placesRepository.GetPlacesByCategory(category)
+	places, err := pu.placesRepository.GetPlacesByCategory(ctx, category)
 	if err != nil {
 		if os.IsTimeout(err) {
 			return nil, fmt.Errorf("request timed out")
@@ -49,7 +49,7 @@ func (pu *placesUsecase) GetPlacesByCategory(ctx context.Context, category strin
 func (pu *placesUsecase) GetPlacesByPrice(ctx context.Context, price int) ([]domain.Place, error) {
 	ctx, cancel := context.WithTimeout(ctx, pu.contextTimeout)
 	defer cancel()
-	places, err := pu.placesRepository.GetPlacesByPrice(price)
+	places, err := pu.placesRepository.GetPlacesByPrice(ctx, price)
 	if err != nil {
 		if os.IsTimeout(err) {
 			return nil, fmt.Errorf("request timed out")
@@ -62,7 +62,7 @@ func (pu *placesUsecase) GetPlacesByPrice(ctx context.Context, price int) ([]dom
 func (pu *placesUsecase) GetAllCategories(ctx context.Context) ([]string, error) {
 	ctx, cancel := context.WithTimeout(ctx, pu.contextTimeout)
 	defer cancel()
-	categories, err := pu.placesRepository.GetAllCategories()
+	categories, err := pu.placesRepository.GetAllCategories(ctx)
 	if err != nil {
 		if os.IsTimeout(err) {
 			return nil, fmt.Errorf("request timed out")

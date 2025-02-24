@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"shaar/domain"
 )
@@ -13,8 +14,8 @@ func NewPlacesRepository(db *sql.DB) *PlacesRepository {
 	return &PlacesRepository{db: db}
 }
 
-func (r *PlacesRepository) GetAllPlaces() ([]domain.Place, error) {
-	rows, err := r.db.Query("SELECT id, name, category, latitude, longitude, rating, price, image_url FROM places")
+func (r *PlacesRepository) GetAllPlaces(ctx context.Context) ([]domain.Place, error) {
+	rows, err := r.db.QueryContext(ctx, "SELECT id, name, category, latitude, longitude, rating, price, image_url FROM places")
 	if err != nil {
 		return nil, err
 	}
@@ -31,8 +32,8 @@ func (r *PlacesRepository) GetAllPlaces() ([]domain.Place, error) {
 	return places, nil
 }
 
-func (r *PlacesRepository) GetPlacesByCategory(category string) ([]domain.Place, error) {
-	rows, err := r.db.Query("SELECT id, name, category, latitude, longitude, rating, price, image_url FROM places WHERE category = $1", category)
+func (r *PlacesRepository) GetPlacesByCategory(ctx context.Context, category string) ([]domain.Place, error) {
+	rows, err := r.db.QueryContext(ctx, "SELECT id, name, category, latitude, longitude, rating, price, image_url FROM places WHERE category = $1", category)
 	if err != nil {
 		return nil, err
 	}
@@ -49,8 +50,8 @@ func (r *PlacesRepository) GetPlacesByCategory(category string) ([]domain.Place,
 	return places, nil
 }
 
-func (r *PlacesRepository) GetPlacesByPrice(price int) ([]domain.Place, error) {
-	rows, err := r.db.Query("SELECT id, name, category, latitude, longitude, rating, price, image_url FROM places WHERE price = $1", price)
+func (r *PlacesRepository) GetPlacesByPrice(ctx context.Context, price int) ([]domain.Place, error) {
+	rows, err := r.db.QueryContext(ctx, "SELECT id, name, category, latitude, longitude, rating, price, image_url FROM places WHERE price = $1", price)
 	if err != nil {
 		return nil, err
 	}
@@ -67,9 +68,9 @@ func (r *PlacesRepository) GetPlacesByPrice(price int) ([]domain.Place, error) {
 	return places, nil
 }
 
-func (r *PlacesRepository) GetAllCategories() ([]string, error) {
+func (r *PlacesRepository) GetAllCategories(ctx context.Context) ([]string, error) {
 	var categories []string
-	rows, err := r.db.Query("SELECT DISTINCT category FROM places")
+	rows, err := r.db.QueryContext(ctx, "SELECT DISTINCT category FROM places")
 	if err != nil {
 		return nil, err
 	}

@@ -14,10 +14,10 @@ type Place struct {
 }
 
 type PlacesRepository interface {
-	GetAllPlaces() ([]Place, error)
-	GetPlacesByCategory(category string) ([]Place, error)
-	GetPlacesByPrice(price int) ([]Place, error)
-	GetAllCategories() ([]string, error)
+	GetAllPlaces(ctx context.Context) ([]Place, error)
+	GetPlacesByCategory(ctx context.Context, category string) ([]Place, error)
+	GetPlacesByPrice(ctx context.Context, price int) ([]Place, error)
+	GetAllCategories(ctx context.Context) ([]string, error)
 }
 
 type PlacesUsecase interface {

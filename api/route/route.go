@@ -14,6 +14,7 @@ func Setup(env *bootstrap.Env, timeout time.Duration, db *sql.DB, router *gin.En
 	NewSignupRouter(env, publicRouter, timeout, db)
 	NewSigninRouter(env, publicRouter, timeout, db)
 	NewRefreshTokenRouter(env, publicRouter, timeout, db)
+	NewEventRouter(env, publicRouter, timeout, db)
 	protectedRouter := router.Group("")
 	protectedRouter.Use(middleware.JwtAuthMiddleware(env.AccessTokenSecret))
 	NewWeatherRouter(env, protectedRouter, timeout)
