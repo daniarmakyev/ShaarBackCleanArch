@@ -37,7 +37,7 @@ func (ec *EventController) Create(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Event created successfully!"})
 }
 
-func (ec *EventController) GetAllEvents(c *gin.Context) {
+func (ec *EventController) GetEvents(c *gin.Context) {
 	pageStr := c.DefaultQuery("page", "1")
 	limitStr := c.DefaultQuery("limit", "6")
 
@@ -53,10 +53,23 @@ func (ec *EventController) GetAllEvents(c *gin.Context) {
 		return
 	}
 
-	events, err := ec.EventUsecase.GetAllEvents(c.Request.Context(), page, limit)
+	events, total, err := ec.EventUsecase.GetAllEvents(c.Request.Context(), page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Message: "Error fetching events: " + err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, events)
+
+	totalPages := (total + limit - 1) / limit
+
+	response := gin.H{
+		"events":      events,
+		"total":       total,
+		"page":        page,
+		"limit":       limit,
+		"totalPages":  totalPages,
+		"hasNextPage": page < totalPages,
+		"hasPrevPage": page > 1,
+	}
+
+	c.JSON(http.StatusOK, response)
 }

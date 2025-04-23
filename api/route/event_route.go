@@ -17,6 +17,6 @@ func NewEventRouter(env *bootstrap.Env, group *gin.RouterGroup, timeout time.Dur
 		usecase.NewEventUsecase(er, timeout),
 	)
 
-	group.GET("/events", ec.GetAllEvents)
+	group.GET("/events", ec.GetEvents)
 	group.POST("/events", ec.Create)
 }

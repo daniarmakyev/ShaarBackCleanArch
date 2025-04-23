@@ -21,12 +21,12 @@ func (er *EventRepository) Create(ctx context.Context, event *domain.EventReques
 	return err
 }
 
-func (er *EventRepository) GetAllEvents(ctx context.Context, page, limit int) ([]domain.Event, error) {
+func (er *EventRepository) GetAllEvents(ctx context.Context, page, limit int) ([]domain.Event, int, error) {
 	offset := (page - 1) * limit
-	query := fmt.Sprintf("SELECT id, name, description, TO_CHAR(date, 'YYYY-MM-DD'), address FROM events LIMIT %d OFFSET %d", limit, offset)
+	query := fmt.Sprintf("SELECT id, name, description, TO_CHAR(date, 'YYYY-MM-DD'), address FROM events ORDER BY date ASC LIMIT %d OFFSET %d", limit, offset)
 	rows, err := er.db.QueryContext(ctx, query)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer rows.Close()
 
@@ -34,9 +34,16 @@ func (er *EventRepository) GetAllEvents(ctx context.Context, page, limit int) ([
 	for rows.Next() {
 		var event domain.Event
 		if err := rows.Scan(&event.ID, &event.Name, &event.Description, &event.Date, &event.Address); err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		events = append(events, event)
 	}
-	return events, nil
+
+	var total int
+	err = er.db.QueryRowContext(ctx, "SELECT COUNT(*) FROM events").Scan(&total)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return events, total, nil
 }

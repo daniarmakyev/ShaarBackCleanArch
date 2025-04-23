@@ -19,10 +19,10 @@ type Event struct {
 
 type EventRepository interface {
 	Create(ctx context.Context, event *EventRequest) error
-	GetAllEvents(ctx context.Context, page int, linit int) ([]Event, error)
+	GetAllEvents(ctx context.Context, page int, limit int) ([]Event, int, error)
 }
 
 type EventUsecase interface {
 	Create(ctx context.Context, event *EventRequest) error
-	GetAllEvents(ctx context.Context, page int, limit int) ([]Event, error)
+	GetAllEvents(ctx context.Context, page int, limit int) ([]Event, int, error)
 }

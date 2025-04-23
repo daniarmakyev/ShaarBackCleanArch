@@ -26,15 +26,15 @@ func (eu *eventUsecase) Create(ctx context.Context, event *domain.EventRequest) 
 	return eu.eventRepository.Create(ctx, event)
 }
 
-func (eu *eventUsecase) GetAllEvents(ctx context.Context, page int, limit int) ([]domain.Event, error) {
+func (eu *eventUsecase) GetAllEvents(ctx context.Context, page, limit int) ([]domain.Event, int, error) {
 	ctx, cancel := context.WithTimeout(ctx, eu.contextTimeout)
 	defer cancel()
-	events, err := eu.eventRepository.GetAllEvents(ctx, page, limit)
+	events, total, err := eu.eventRepository.GetAllEvents(ctx, page, limit)
 	if err != nil {
 		if os.IsTimeout(err) {
-			return nil, fmt.Errorf("request timed out")
+			return nil, 0, fmt.Errorf("request timed out")
 		}
-		return nil, err
+		return nil, 0, err
 	}
-	return events, nil
+	return events, total, nil
 }
